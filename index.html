@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Me a Bagel</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="profile">
+        <div class="avatar" id="avatar">
+          <span class="default-icon">🥯</span>
+        </div>
+        <h1 id="display-name">Buy Me a Bagel</h1>
+        <p id="bio"></p>
+        <span class="chain-badge" id="chain-badge"></span>
+      </div>
+
+      <div class="section-label">Pick a bagel</div>
+      <div class="presets" id="presets"></div>
+
+      <div class="custom-amount" id="custom-amount-section">
+        <div class="input-wrapper">
+          <span class="currency">$</span>
+          <input type="number" id="custom-amount" placeholder="Custom amount" min="1" step="1">
+        </div>
+      </div>
+
+      <div class="message-input">
+        <textarea id="message" placeholder="Say something nice (optional)" rows="2"></textarea>
+      </div>
+
+      <button class="checkout-btn" id="checkout-btn" disabled>
+        <span class="bagel-icon">🥯</span>
+        <span id="btn-text">Buy a Bagel</span>
+      </button>
+
+      <p class="non-custodial-note">
+        Non-custodial &middot; Paid in <span id="stablecoin-label">USDC</span> &middot; Straight to wallet
+      </p>
+    </div>
+
+    <div class="powered-by">
+      Powered by <a href="https://allscale.io" target="_blank" rel="noopener">Allscale Checkout</a>
+    </div>
+
+    <div class="socials" id="socials"></div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
