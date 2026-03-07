@@ -1,78 +1,100 @@
-# 🥯 Buy Me a Bagel
+# Buy Me a Bagel
 
 A non-custodial, stablecoin-powered alternative to Buy Me a Coffee. Powered by [Allscale Checkout](https://allscale.io).
 
-Payments go **directly to your wallet** — no middleman, no custody, no platform fees skimming your support.
+Payments are settled in **USDT** and go **directly to your wallet** — no middleman, no custody.
 
 [![Buy Me a Bagel](badge/badge.svg)](https://github.com/allscale-io/buy_me_a_bagel)
 
 ## How it works
 
-1. Fork this repo
-2. Update `config.js` with your Allscale API key and wallet address
-3. Deploy anywhere (GitHub Pages, Vercel, Netlify, etc.)
-4. Share your page or add the badge to your GitHub profile
-
-Supporters pay in stablecoins (USDC, USDT) on the chain of your choice. Funds land in your wallet instantly via Allscale Checkout.
+1. Supporter picks a bagel amount on your page
+2. Your server creates a checkout intent via Allscale API
+3. Supporter is redirected to Allscale's hosted checkout page
+4. They pay with USDT (via AllScale wallet or any crypto wallet)
+5. Funds land in your wallet. Done.
 
 ## Quick start
 
 ```bash
-# Fork & clone
+# 1. Fork & clone
 git clone https://github.com/YOUR_USERNAME/buy_me_a_bagel.git
 cd buy_me_a_bagel
-```
 
-Edit `config.js`:
+# 2. Set your API credentials
+cp .env.example .env
+# Edit .env with your Allscale API Key and Secret
 
-```js
-const CONFIG = {
-  name: "Your Name",
-  bio: "I build cool things on the internet.",
-  allscaleApiKey: "YOUR_ALLSCALE_API_KEY",  // from https://allscale.io
-  walletAddress: "0xYOUR_WALLET_ADDRESS",
-  chain: "base",           // ethereum, base, polygon, arbitrum
-  stablecoin: "USDC",      // USDC, USDT
-  presets: [3, 5, 10, 25],
-  // ...
-};
-```
+# 3. Customize your page
+# Edit config.js with your name, bio, presets, theme
 
-Open `index.html` in a browser — that's it. No build step, no dependencies.
-
-## Deploy
-
-**GitHub Pages:** Settings > Pages > Source: main branch > Save
-
-**Vercel/Netlify:** Import the repo and deploy. Zero config needed.
-
-## Add the badge to your GitHub
-
-Add this to any README:
-
-```md
-[![Buy Me a Bagel](https://raw.githubusercontent.com/YOUR_USERNAME/buy_me_a_bagel/main/badge/badge.svg)](https://YOUR_USERNAME.github.io/buy_me_a_bagel)
+# 4. Deploy to Vercel
+npm i -g vercel
+vercel
 ```
 
 ## Configuration
+
+### `config.js` — Frontend (public, safe to commit)
 
 | Option | Description |
 |---|---|
 | `name` | Your display name |
 | `bio` | Short tagline |
 | `avatar` | Avatar image URL (blank = bagel icon) |
-| `allscaleApiKey` | Your Allscale Commerce API key |
-| `walletAddress` | Your wallet address (receives payments directly) |
-| `chain` | Chain to receive on: `ethereum`, `base`, `polygon`, `arbitrum` |
-| `stablecoin` | `USDC` or `USDT` |
+| `currency` | Display currency label (e.g. `"USD"`) |
+| `currencySymbol` | Display symbol (e.g. `"$"`) |
 | `presets` | Array of preset dollar amounts |
 | `allowCustomAmount` | Allow supporters to enter any amount |
-| `theme` | `light` or `dark` |
+| `theme` | `"light"` or `"dark"` |
 | `socials` | `{ twitter, github, website }` |
 
-## Why non-custodial?
+### `.env` — Backend (secret, never commit)
 
-Traditional platforms like Buy Me a Coffee hold your funds and take a cut. Buy Me a Bagel uses Allscale Checkout to route stablecoin payments directly to your wallet. You own your money from the moment it's sent.
+| Variable | Description |
+|---|---|
+| `ALLSCALE_API_KEY` | Your Allscale API key |
+| `ALLSCALE_API_SECRET` | Your Allscale API secret |
+| `ALLSCALE_BASE_URL` | `https://openapi-sandbox.allscale.io` (test) or `https://openapi.allscale.io` (prod) |
+| `ALLSCALE_CURRENCY` | Fiat currency code: `USD`, `EUR`, `GBP`, `CAD`, `AUD`, `JPY`, `CNY`, `SGD`, `HKD` |
+
+## Deploy
+
+### Vercel (recommended)
+
+1. Fork this repo
+2. Import to [Vercel](https://vercel.com/new)
+3. Add environment variables in Vercel dashboard (from `.env`)
+4. Deploy — zero config needed
+
+### Other platforms
+
+The `api/checkout.js` is a standard Vercel serverless function. To adapt for other platforms (Netlify, Cloudflare Workers, etc.), port the signing logic from that file into your platform's function format.
+
+## Add the badge to your GitHub
+
+```md
+[![Buy Me a Bagel](https://raw.githubusercontent.com/YOUR_USERNAME/buy_me_a_bagel/main/badge/badge.svg)](https://your-bagel-page.vercel.app)
+```
+
+## Architecture
+
+```
+Browser                    Your Server (Vercel)              Allscale
+  |                              |                              |
+  |-- POST /api/checkout ------->|                              |
+  |                              |-- HMAC-signed POST --------->|
+  |                              |<-- { checkout_url } ---------|
+  |<-- { checkout_url } ---------|                              |
+  |                              |                              |
+  |-- redirect to checkout_url -------------------------------->|
+  |                         (user pays on Allscale page)        |
+  |                              |<-- webhook (payment done) ---|
+```
+
+- **API Secret never touches the browser** — signing happens server-side
+- **Non-custodial** — Allscale routes USDT directly to your wallet
+- **Zero dependencies** — pure HTML/CSS/JS frontend, Node.js crypto for signing
 
 ## License
 

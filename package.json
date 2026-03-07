@@ -1,0 +1,7 @@
+{
+  "name": "buy-me-a-bagel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Non-custodial stablecoin donations powered by Allscale Checkout",
+  "license": "MIT"
+}

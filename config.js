@@ -13,23 +13,11 @@ const CONFIG = {
   // Avatar image URL (or leave empty for default bagel icon)
   avatar: "",
 
-  // Your Allscale Commerce API key
-  // Get one at https://allscale.io
-  allscaleApiKey: "YOUR_ALLSCALE_API_KEY",
+  // Display currency (what supporters see)
+  currency: "USD",
+  currencySymbol: "$",
 
-  // Allscale Checkout URL (default works for most users)
-  allscaleCheckoutUrl: "https://checkout.allscale.io",
-
-  // Stablecoin to accept (e.g., "USDC", "USDT")
-  stablecoin: "USDC",
-
-  // Chain to receive payments on (e.g., "ethereum", "base", "polygon", "arbitrum")
-  chain: "base",
-
-  // Your wallet address (payments go directly here - non-custodial!)
-  walletAddress: "",
-
-  // Preset bagel amounts (in USD)
+  // Preset bagel amounts
   presets: [3, 5, 10, 25],
 
   // Allow custom amounts
