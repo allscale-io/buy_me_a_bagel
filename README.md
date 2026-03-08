@@ -232,16 +232,16 @@ The core logic is the HMAC-SHA256 signing in `api/checkout.js` — everything el
 ## FAQ
 
 **Do my supporters need a crypto wallet?**
-No. They can pay through Allscale's checkout page using various payment methods.
+Yes, supporters currently pay with crypto through Allscale's checkout page. More payment methods are coming soon.
 
 **What if I don't have a crypto wallet?**
-You'll need one to receive payments. Any wallet that supports USDT on the network Allscale uses will work. Allscale can guide you through this during account setup.
+You don't need one. Just create an account on Allscale and you'll have a wallet ready to receive payments. Get started at [app.allscale.io](https://app.allscale.io).
 
 **Is this really free?**
-This app charges nothing. Allscale may have its own transaction fees, and there are blockchain gas fees for on-chain settlement. Check Allscale's pricing for details.
+This app charges nothing. Allscale charges a 0.5% transaction fee — negligible compared to the 5%+ that traditional platforms take.
 
 **Can someone take down my page or freeze my funds?**
-Your page runs on your own Vercel deployment — you control it. Once funds are sent to your wallet on-chain, no one can reverse or freeze them.
+Your page runs on your own Vercel deployment — you control it. Once funds are sent to your wallet on-chain, no one can reverse or freeze them. You also stay anonymous — no personal information is required to receive payments.
 
 ---
 
