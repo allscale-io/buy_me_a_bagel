@@ -1,5 +1,23 @@
 import crypto from "crypto";
 
+// Simple in-memory rate limiter: max requests per IP within a time window
+const rateLimit = new Map();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = rateLimit.get(ip);
+
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    rateLimit.set(ip, { start: now, count: 1 });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 // Currency string → Allscale enum mapping
 const CURRENCY_ENUM = {
   USD: 1,
@@ -16,6 +34,15 @@ const CURRENCY_ENUM = {
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.socket?.remoteAddress ||
+    "unknown";
+
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: "Too many requests, try again shortly" });
   }
 
   const { amount, message, supporter_name } = req.body;
