@@ -131,7 +131,8 @@
       }
 
       if (data.checkout_url) {
-        window.location.href = data.checkout_url;
+        window.open(data.checkout_url, "_blank", "noopener");
+        updateButton();
       }
     } catch (err) {
       console.error("Checkout error:", err);
