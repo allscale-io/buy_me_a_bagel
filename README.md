@@ -4,7 +4,8 @@
 
 Supporters pay in fiat-denominated amounts. Payments settle as **USDT stablecoin directly to your wallet** — no platform holds your money, ever.
 
-[![Buy Me a Bagel](badge/badge.svg)](https://github.com/allscale-io/buy_me_a_bagel)
+<!-- Replace the URL below with your own deployed page -->
+[![Buy Me a Bagel](badge/badge.svg)](https://buymeabagel.vercel.app/)
 
 ---
 
