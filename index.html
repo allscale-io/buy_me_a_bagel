@@ -18,28 +18,37 @@
         <span class="chain-badge" id="chain-badge"></span>
       </div>
 
-      <div class="section-label">Pick a bagel</div>
-      <div class="presets" id="presets"></div>
+      <div id="checkout-form">
+        <div class="section-label">Pick a bagel</div>
+        <div class="presets" id="presets"></div>
 
-      <div class="custom-amount" id="custom-amount-section">
-        <div class="input-wrapper">
-          <span class="currency">$</span>
-          <input type="number" id="custom-amount" placeholder="Custom amount" min="1" step="1">
+        <div class="custom-amount" id="custom-amount-section">
+          <div class="input-wrapper">
+            <span class="currency">$</span>
+            <input type="number" id="custom-amount" placeholder="Custom amount" min="1" step="1">
+          </div>
         </div>
+
+        <div class="message-input">
+          <textarea id="message" placeholder="Say something nice (optional)" rows="2"></textarea>
+        </div>
+
+        <button class="checkout-btn" id="checkout-btn" disabled>
+          <span class="bagel-icon">🥯</span>
+          <span id="btn-text">Buy a Bagel</span>
+        </button>
+
+        <p class="non-custodial-note">
+          Non-custodial &middot; Settled in <span id="stablecoin-label">USDT</span> &middot; Straight to wallet
+        </p>
       </div>
 
-      <div class="message-input">
-        <textarea id="message" placeholder="Say something nice (optional)" rows="2"></textarea>
+      <div id="status-view" class="status-view" style="display: none;">
+        <span id="status-icon" class="status-icon">🥯</span>
+        <p id="status-text" class="status-text">Waiting for payment...</p>
+        <p id="status-sub" class="status-sub">Complete the payment in the other tab</p>
+        <button id="reset-btn" class="reset-btn" style="display: none;">Buy another bagel</button>
       </div>
-
-      <button class="checkout-btn" id="checkout-btn" disabled>
-        <span class="bagel-icon">🥯</span>
-        <span id="btn-text">Buy a Bagel</span>
-      </button>
-
-      <p class="non-custodial-note">
-        Non-custodial &middot; Settled in <span id="stablecoin-label">USDT</span> &middot; Straight to wallet
-      </p>
     </div>
 
     <div class="powered-by">

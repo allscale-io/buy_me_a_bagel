@@ -1,5 +1,19 @@
 (() => {
   let selectedAmount = null;
+  let pollTimer = null;
+
+  // Allscale checkout intent statuses
+  const STATUS = {
+    FAILED: -1,
+    REJECTED: -2,
+    UNDERPAID: -3,
+    CANCELED: -4,
+    CREATED: 1,
+    VIEWED: 2,
+    TEMP_WALLET: 3,
+    ON_CHAIN: 10,
+    CONFIRMED: 20,
+  };
 
   function init() {
     if (CONFIG.theme === "dark") {
@@ -102,6 +116,111 @@
     });
 
     document.getElementById("checkout-btn").addEventListener("click", checkout);
+
+    const resetBtn = document.getElementById("reset-btn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", resetToDefault);
+    }
+  }
+
+  function showStatus(state, msg) {
+    document.getElementById("checkout-form").style.display =
+      state === "default" ? "block" : "none";
+    document.getElementById("status-view").style.display =
+      state === "default" ? "none" : "flex";
+
+    if (state === "default") return;
+
+    const icon = document.getElementById("status-icon");
+    const text = document.getElementById("status-text");
+    const sub = document.getElementById("status-sub");
+    const resetBtn = document.getElementById("reset-btn");
+
+    if (state === "polling") {
+      icon.textContent = "🥯";
+      icon.className = "status-icon pulse";
+      text.textContent = msg || "Waiting for payment...";
+      sub.textContent = "Complete the payment in the other tab";
+      resetBtn.style.display = "none";
+    } else if (state === "confirmed") {
+      icon.textContent = "🎉";
+      icon.className = "status-icon";
+      text.textContent = "Thank you!";
+      sub.textContent = msg || "Your bagel made my day!";
+      resetBtn.style.display = "inline-block";
+    } else if (state === "failed") {
+      icon.textContent = "😕";
+      icon.className = "status-icon";
+      text.textContent = msg || "Payment didn't go through";
+      sub.textContent = "Feel free to try again";
+      resetBtn.style.display = "inline-block";
+    }
+  }
+
+  function resetToDefault() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+    selectedAmount = null;
+    document.getElementById("message").value = "";
+    document
+      .querySelectorAll(".preset-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document.getElementById("custom-amount").value = "";
+    showStatus("default");
+    updateButton();
+  }
+
+  function startPolling(intentId, amount) {
+    let attempts = 0;
+    const maxAttempts = 120; // 10 minutes at 5s intervals
+
+    showStatus("polling");
+
+    pollTimer = setInterval(async () => {
+      attempts++;
+      if (attempts > maxAttempts) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        showStatus("failed", "Payment timed out");
+        return;
+      }
+
+      try {
+        const resp = await fetch(
+          `/api/status?intent_id=${encodeURIComponent(intentId)}`
+        );
+        const data = await resp.json();
+
+        if (!resp.ok) return;
+
+        const status = data.status;
+
+        if (status === STATUS.CONFIRMED) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+          showStatus(
+            "confirmed",
+            `You bought me a ${CONFIG.currencySymbol}${amount} bagel!`
+          );
+        } else if (status === STATUS.ON_CHAIN) {
+          showStatus("polling", "Payment detected, confirming on-chain...");
+        } else if (status < 0) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+          const reasons = {
+            [STATUS.FAILED]: "Payment failed",
+            [STATUS.REJECTED]: "Payment was rejected",
+            [STATUS.UNDERPAID]: "Amount was less than required",
+            [STATUS.CANCELED]: "Payment was canceled",
+          };
+          showStatus("failed", reasons[status] || "Payment didn't go through");
+        }
+      } catch {
+        // Silently retry on network errors
+      }
+    }, 5000);
   }
 
   async function checkout() {
@@ -132,7 +251,7 @@
 
       if (data.checkout_url) {
         window.open(data.checkout_url, "_blank", "noopener");
-        updateButton();
+        startPolling(data.intent_id, selectedAmount);
       }
     } catch (err) {
       console.error("Checkout error:", err);
