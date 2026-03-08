@@ -235,6 +235,28 @@ body {
   font-size: 20px;
 }
 
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.github-link:hover {
+  border-color: var(--text-secondary);
+  color: var(--text);
+}
+
 .powered-by {
   text-align: center;
   margin-top: 20px;
