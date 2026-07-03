@@ -120,13 +120,13 @@ Commit the changes.
 |---|---|
 | `ALLSCALE_API_KEY` | Your API key from Step 1 |
 | `ALLSCALE_API_SECRET` | Your API secret from Step 1 |
-| `ALLSCALE_BASE_URL` | `https://openapi-sandbox.allscale.io` (for testing) or `https://openapi.allscale.io` (for real payments) |
+| `ALLSCALE_BASE_URL` | `https://openapi.allscale.io` |
 | `ALLSCALE_CURRENCY` | `USD` (or `EUR`, `GBP`, `CAD`, `AUD`, `JPY`, `CNY`, `SGD`, `HKD`) |
 
 4. Click **Deploy**
 5. Done. Vercel gives you a URL like `your-project.vercel.app` — that's your Buy Me a Bagel page.
 
-> **Tip:** Start with the sandbox URL to test everything. Switch to the production URL when you're ready to receive real payments.
+> **Tip:** To test everything without real payments, create a **test store** in your Allscale dashboard and use its API Key and Secret. Switch to your real store's credentials when you're ready to receive payments.
 
 ---
 
@@ -213,7 +213,7 @@ Supporter's Browser          Your Vercel Server              Allscale API
 |---|---|
 | `ALLSCALE_API_KEY` | Your Allscale API key |
 | `ALLSCALE_API_SECRET` | Your Allscale API secret |
-| `ALLSCALE_BASE_URL` | `https://openapi-sandbox.allscale.io` (test) or `https://openapi.allscale.io` (prod) |
+| `ALLSCALE_BASE_URL` | `https://openapi.allscale.io` (use a test store's credentials for testing) |
 | `ALLSCALE_CURRENCY` | Fiat currency code: `USD`, `EUR`, `GBP`, `CAD`, `AUD`, `JPY`, `CNY`, `SGD`, `HKD` |
 
 ---
