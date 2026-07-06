@@ -4,13 +4,16 @@
 
   // Allscale checkout intent statuses
   const STATUS = {
-    FAILED: -1,
-    REJECTED: -2,
-    UNDERPAID: -3,
+    TIMEOUT: -5,
     CANCELED: -4,
+    UNDERPAID: -3,
+    REJECTED: -2,
+    FAILED: -1,
     CREATED: 1,
-    VIEWED: 2,
-    TEMP_WALLET: 3,
+    PAYING: 2,
+    TEMP_WALLET_RECEIVED: 3,
+    PENDING_MANUAL_OPERATION: 4,
+    SEND_BACK: 5,
     ON_CHAIN: 10,
     CONFIRMED: 20,
   };
@@ -206,6 +209,10 @@
           );
         } else if (status === STATUS.ON_CHAIN) {
           showStatus("polling", "Payment detected, confirming on-chain...");
+        } else if (status === STATUS.PENDING_MANUAL_OPERATION) {
+          showStatus("polling", "Payment under review...");
+        } else if (status === STATUS.SEND_BACK) {
+          showStatus("polling", "Refund in progress...");
         } else if (status < 0) {
           clearInterval(pollTimer);
           pollTimer = null;
@@ -214,6 +221,7 @@
             [STATUS.REJECTED]: "Payment was rejected",
             [STATUS.UNDERPAID]: "Amount was less than required",
             [STATUS.CANCELED]: "Payment was canceled",
+            [STATUS.TIMEOUT]: "Payment timed out",
           };
           showStatus("failed", reasons[status] || "Payment didn't go through");
         }

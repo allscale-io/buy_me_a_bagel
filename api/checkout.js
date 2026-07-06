@@ -47,7 +47,8 @@ export default async function handler(req, res) {
 
   const { amount, message, supporter_name } = req.body;
 
-  if (!amount || amount <= 0 || amount > 10000) {
+  // Allscale minimum payment is 0.1 USDT
+  if (!amount || amount < 0.1 || amount > 10000) {
     return res.status(400).json({ error: "Invalid amount" });
   }
 

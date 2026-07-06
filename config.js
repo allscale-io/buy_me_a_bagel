@@ -17,8 +17,8 @@ const CONFIG = {
   currency: "USD",
   currencySymbol: "$",
 
-  // Preset bagel amounts
-  presets: [0.01, 0.1, 0.5, 1],
+  // Preset bagel amounts (Allscale minimum payment is 0.1 USDT)
+  presets: [1, 3, 5, 10],
 
   // Allow custom amounts
   allowCustomAmount: true,
