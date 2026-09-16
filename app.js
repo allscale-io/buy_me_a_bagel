@@ -1,8 +1,19 @@
+/**
+ * Buy Me a Bagel — front-end controller.
+ *
+ * Wires up preset buttons, custom amount input, message box and the checkout
+ * flow. Polls /api/status until the payment is confirmed or fails.
+ *
+ * Important: every value that flows into the DOM is inserted with safe APIs
+ * (textContent / DOM construction) instead of innerHTML, so a malicious
+ * avatar URL or social handle can never inject script into this page.
+ */
 (() => {
   let selectedAmount = null;
   let pollTimer = null;
 
-  // Allscale checkout intent statuses
+  // Allscale checkout intent statuses. Keep these in sync with the Allscale
+  // API reference — they are how /api/status reports progress.
   const STATUS = {
     TIMEOUT: -5,
     CANCELED: -4,
@@ -18,6 +29,36 @@
     CONFIRMED: 20,
   };
 
+  // --- HTML-escape helper --------------------------------------------------
+  // Used for the few places where we still build HTML strings (social links).
+  // Anything CONFIG-driven must go through this so a value like
+  // `" onerror="alert(1)` cannot break out of an attribute.
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+  function escapeUrl(value) {
+    // Only allow http(s) and mailto links. Everything else is treated as
+    // unsafe and replaced with about:blank so the page cannot be redirected
+    // to a javascript: URL by a tampered config.js.
+    try {
+      const parsed = new URL(value, window.location.href);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'mailto:') {
+        return parsed.toString();
+      }
+    } catch (_) {
+      // Fall through and return the safe value below.
+    }
+    return 'about:blank';
+  }
+
   function init() {
     if (CONFIG.theme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -29,9 +70,15 @@
     document.getElementById("chain-badge").textContent =
       CONFIG.currency + " → USDT";
 
+    // Build the avatar <img> with DOM construction. textContent is used for
+    // alt text, so even a hostile CONFIG.name cannot inject markup.
     if (CONFIG.avatar) {
-      document.getElementById("avatar").innerHTML =
-        `<img src="${CONFIG.avatar}" alt="${CONFIG.name}">`;
+      const avatar = document.getElementById("avatar");
+      avatar.replaceChildren();
+      const img = document.createElement("img");
+      img.src = escapeUrl(CONFIG.avatar);
+      img.alt = escapeAttr(CONFIG.name);
+      avatar.appendChild(img);
     }
 
     document.title = `Buy ${CONFIG.name} a Bagel`;
@@ -59,25 +106,36 @@
 
   function renderSocials() {
     const container = document.getElementById("socials");
-    const links = [];
+    container.replaceChildren(); // Clear any previous render.
 
+    const entries = [];
     if (CONFIG.socials.twitter) {
-      links.push(
-        `<a href="https://twitter.com/${CONFIG.socials.twitter}" target="_blank" rel="noopener">Twitter</a>`
-      );
+      entries.push({
+        href: `https://twitter.com/${encodeURIComponent(CONFIG.socials.twitter)}`,
+        label: "Twitter",
+      });
     }
     if (CONFIG.socials.github) {
-      links.push(
-        `<a href="https://github.com/${CONFIG.socials.github}" target="_blank" rel="noopener">GitHub</a>`
-      );
+      entries.push({
+        href: `https://github.com/${encodeURIComponent(CONFIG.socials.github)}`,
+        label: "GitHub",
+      });
     }
     if (CONFIG.socials.website) {
-      links.push(
-        `<a href="${CONFIG.socials.website}" target="_blank" rel="noopener">Website</a>`
-      );
+      entries.push({
+        href: CONFIG.socials.website,
+        label: "Website",
+      });
     }
 
-    container.innerHTML = links.join("");
+    for (const entry of entries) {
+      const anchor = document.createElement("a");
+      anchor.href = escapeUrl(entry.href);
+      anchor.textContent = entry.label;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      container.appendChild(anchor);
+    }
   }
 
   function selectPreset(btn, amount) {
@@ -258,7 +316,7 @@
       }
 
       if (data.checkout_url) {
-        window.open(data.checkout_url, "_blank", "noopener");
+        window.open(data.checkout_url, "_blank", "noopener,noreferrer");
         startPolling(data.intent_id, selectedAmount);
       }
     } catch (err) {
